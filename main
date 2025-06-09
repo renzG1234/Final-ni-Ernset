@@ -1,0 +1,123 @@
+ackage Finalniernest;
+
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
+public class Main {
+
+    private static final String[] item = {"PABO", "Gansa", "PATO", "MANOK", "PUGO"};
+    private static final double[] price = {10.0, 20.0, 30.0, 40.0, 50.0};
+
+    public static void main(String[] args) {
+        int choice;
+        int quantity;
+        double total = 0.0;
+        ArrayList<String> receipt = new ArrayList<>();
+        double finalAmount = 0.0;
+
+        do {
+            choice = showMenu();
+
+            if (choice >= 1 && choice <= item.length) {
+                quantity = getQuantity();
+                if (quantity <= 0) {
+                    JOptionPane.showMessageDialog(null, "Invalid quantity! Please enter a number greater than 0.", "Error", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                double itemTotal = calculateTotal(choice - 1, quantity);
+                total += itemTotal;
+
+                receipt.add(item[choice - 1] + " x" + quantity + " - P" + price[choice - 1] + " each - Total: P" + itemTotal);
+
+                int continueChoice = JOptionPane.showConfirmDialog(null, "Do you want to continue shopping?", "Continue?", JOptionPane.YES_NO_OPTION);
+                if (continueChoice == JOptionPane.NO_OPTION) {
+                    break;
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Invalid choice! Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } while (true);
+
+        int discountChoice = JOptionPane.showConfirmDialog(null, "Sexy ka o dili?", "Question", JOptionPane.YES_NO_OPTION);
+        double discount = 0.0;
+
+        if (discountChoice == JOptionPane.YES_OPTION) {
+            discount = total * 0.05;
+            finalAmount = total - discount;
+            JOptionPane.showMessageDialog(null, "Total: P" + finalAmount + "\nDiscount Applied: 5%");
+        } else {
+            finalAmount = total;
+            JOptionPane.showMessageDialog(null, "Total: P" + finalAmount + "\nNo Discount Applied");
+        }
+
+        while (true) {
+            try {
+                String input = JOptionPane.showInputDialog(null, "Your total is P" + finalAmount + "\nEnter Cash: ");
+                if (input == null) {
+                    JOptionPane.showMessageDialog(null, "Transaction cancelled.");
+                    return;
+                }
+
+                double enteredCash = Double.parseDouble(input);
+                double change = enteredCash - finalAmount;
+
+                if (enteredCash > finalAmount) {
+                    JOptionPane.showMessageDialog(null, "Your change is: P" + change);
+                    displayReceipt(receipt, finalAmount, discount);
+                    JOptionPane.showMessageDialog(null, "Salamat sa pag palit boss!");
+                    break;
+                } else if (enteredCash == finalAmount) {
+                    JOptionPane.showMessageDialog(null, "Exact amount received. Thank you!");
+                    displayReceipt(receipt, finalAmount, discount);
+                    JOptionPane.showMessageDialog(null, "Salamat sa pag palit boss!");
+                    break;
+                } else {
+                    JOptionPane.showMessageDialog(null, "INVALID! Kulang ang cash. Please enter again.");
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Please enter a valid number.");
+            }
+        }
+    }
+
+    private static int showMenu() {
+        StringBuilder menuMessage = new StringBuilder("Choose a product:\n");
+        for (int i = 0; i < item.length; i++) {
+            menuMessage.append(i + 1).append(". ").append(item[i]).append(" - P").append(price[i]).append("\n");
+        }
+
+        String choiceString = JOptionPane.showInputDialog(null, menuMessage.toString(), "Product Menu", JOptionPane.QUESTION_MESSAGE);
+        try {
+            return Integer.parseInt(choiceString);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private static int getQuantity() {
+        String quantityString = JOptionPane.showInputDialog(null, "Enter the quantity:", "Quantity", JOptionPane.QUESTION_MESSAGE);
+        try {
+            return Integer.parseInt(quantityString);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private static double calculateTotal(int index, int quantity) {
+        return price[index] * quantity;
+    }
+
+    private static void displayReceipt(ArrayList<String> receipt, double finalAmount, double discount) {
+        StringBuilder receiptMessage = new StringBuilder("Receipt:\n");
+        for (String itemLine : receipt) {
+            receiptMessage.append(itemLine).append("\n");
+        }
+        receiptMessage.append("\nTotal: P").append(finalAmount + discount);
+        if (discount > 0) {
+            receiptMessage.append("\nDiscount: -P").append(discount);
+        }
+        receiptMessage.append("\nFinal Amount: P").append(finalAmount);
+        JOptionPane.showMessageDialog(null, receiptMessage.toString(), "Receipt", JOptionPane.INFORMATION_MESSAGE);
+    }
+}
